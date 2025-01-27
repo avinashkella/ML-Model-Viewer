@@ -4,6 +4,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+import ast
 
 load_dotenv()
 
@@ -12,6 +13,35 @@ load_dotenv()
 app = Flask(__name__)
 app.config["DEBUG"] = False
 
+def extract_model_from_code(code_string):
+    import traceback
+    import textwrap
+
+    # Dictionary to serve as the execution context
+    execution_context = {}
+
+    try:
+        # Normalize indentation using textwrap.dedent
+        cleaned_code = textwrap.dedent(code_string).strip()
+
+        # Attempt to execute the provided code
+        exec(cleaned_code, execution_context)
+
+        # Extract the model if it exists
+        model = execution_context.get('model')
+
+        if model:
+            print("Model extracted successfully:")
+            return model
+        else:
+            print("No model found in the provided code.")
+            return None
+
+    except Exception as e:
+        # Print error traceback for debugging
+        print("An error occurred while executing the code:")
+        traceback.print_exc()
+        return None
 
 @app.route("/", methods=["POST"])
 def generateCode():
@@ -46,7 +76,14 @@ def generateCode():
     except Exception as e:
         print("Error due to ", e)
 
-    return answer
+    model = extract_model_from_code(answer)
+
+    if model:
+        print("Model extracted successfully and here to use it")
+    else:
+        print("Failed to extract model.")
+
+    return model
 
 
 if __name__ == "__main__":
