@@ -1,24 +1,12 @@
-import os
-from flask import Flask, request
+from config import *
+import os, textwrap, traceback
 from openai import OpenAI
-import os
-from dotenv import load_dotenv
-import json
-import ast
 
-load_dotenv()
-
-
-# pylint: disable=C0103
-app = Flask(__name__)
-app.config["DEBUG"] = False
-
+# Function to extract the model from the provided code
 def extract_model_from_code(code_string):
-    import traceback
-    import textwrap
 
     # Dictionary to serve as the execution context
-    execution_context = {}
+    execution_context = {"num_classes": 10}
 
     try:
         # Normalize indentation using textwrap.dedent
@@ -29,7 +17,7 @@ def extract_model_from_code(code_string):
 
         # Extract the model if it exists
         model = execution_context.get('model')
-
+        print(model)
         if model:
             print("Model extracted successfully:")
             return model
@@ -43,22 +31,25 @@ def extract_model_from_code(code_string):
         traceback.print_exc()
         return None
 
-@app.route("/", methods=["POST"])
-def generateCode():
-
-    request_body = request.form
-
-    query = request_body.get("prompt")
-
+# Define a function to generate code using OpenAI
+def generate_code(query):
     prompt = f"""
-        Given the text below, generate the corresponding machine learning model in Python using a library such as TensorFlow or PyTorch. Return only the code defining the model.
+        Given the text below, generate the corresponding machine learning model in Python using a library such as TensorFlow or PyTorch. Return the code defining the model.
+        All The variables including num_classes=10 inside code must be defined and code is executable without any error.
+
+        Return a response like these examples:
+        Text: i need a image model using tensorflow and keras.
+        Model: {DEFAULT_CODE_KERAS}
+        
+        Text: i need a image model.
+        Model: {DEFAULT_CODE_PYTORCH}
 
         Text: {query}
-
         Model:
-        """
+    """
 
     try:
+        # OpenAI API setup
         client = OpenAI(
             api_key=os.getenv("OPENAI_API_KEY"),
             organization=os.getenv("organization"),
@@ -71,20 +62,8 @@ def generateCode():
         )
 
         answer = response.choices[0].message.content.strip()
-        print(answer)
 
     except Exception as e:
-        print("Error due to ", e)
+        return f"Error occurred: {e}"
 
-    model = extract_model_from_code(answer)
-
-    if model:
-        print("Model extracted successfully and here to use it")
-    else:
-        print("Failed to extract model.")
-
-    return model
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    return answer
