@@ -1,0 +1,7 @@
+streamlit
+tensorflow
+torch
+visualkeras
+pillow
+python-dotenv
+openai
