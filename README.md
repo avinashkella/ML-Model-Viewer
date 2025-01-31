@@ -1,8 +1,7 @@
 # ML-Model-Viewer
 This repository is about ML model viewer.
 
-backend folder: 
-- Get model from openAI API
+- Generate model from openAI API
+- User can modify code and visualize the model layers
 
-frontend:
-- chatbot to visualize model
+![Model Visualization](https://github.com/avinashkella/ML-Model-Viewer/blob/main/images/CNN.png)
