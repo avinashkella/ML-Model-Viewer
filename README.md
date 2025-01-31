@@ -75,7 +75,7 @@ streamlit run app.py
 ### **3️⃣ Model Visualization (Right Panel)**  
 - Displays the model summary and visualization.  
 - **Keras Models**: Uses `visualkeras` for architecture and `.summary()` for layers.  
-- **PyTorch Models**: Uses `torchsummary` for summary and `torchview` (to be implemented) for visualization.  
+- **PyTorch Models**: Uses `torchsummary` for summary.
 
 ---
 
